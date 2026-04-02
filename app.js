@@ -1,4 +1,4 @@
-var SOAP_URL = "http://168.144.38.111:8081/ws";
+var SOAP_URL = "https://soa-user-soap-ycgmc.ondigitalocean.app/ws";
 var JSON_URL = "https://lionfish-app-sptgr.ondigitalocean.app/users";
 var FILE_URL = "https://octopus-app-phhnx.ondigitalocean.app/files";
 var uploadedImageUrl = "";
