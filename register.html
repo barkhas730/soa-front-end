@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бүртгүүлэх</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <h1>Бүртгүүлэх</h1>
+        <p class="subtitle">SOAP authentication service дээр бүртгэлээ үүсгэнэ үү.</p>
+
+        <form id="registerForm">
+            <label for="username">Хэрэглэгчийн нэр</label>
+            <input id="username" type="text" required>
+
+            <label for="password">Нууц үг</label>
+            <input id="password" type="password" required>
+
+            <button type="submit">Бүртгүүлэх</button>
+        </form>
+
+        <p id="message" class="message"></p>
+        <p class="small-text">Аль хэдийн бүртгэлтэй юу? <a href="login.html">Нэвтрэх хуудас руу буцах</a></p>
+    </div>
+
+    <script src="app.js?v=2"></script>
+</body>
+</html>

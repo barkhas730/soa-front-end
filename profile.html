@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профайл</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card large-card">
+        <div class="top-row">
+            <div>
+                <h1>Миний профайл</h1>
+                <p class="subtitle">Профайлаа үүсгэх, харах, засах, устгах, зураг байршуулах боломжтой.</p>
+            </div>
+            <button id="logoutButton" class="secondary-button" type="button">Гарах</button>
+        </div>
+
+        <form id="profileForm">
+            <label for="name">Нэр</label>
+            <input id="name" type="text" required>
+
+            <label for="email">И-мэйл</label>
+            <input id="email" type="email" required>
+
+            <label for="bio">Танилцуулга</label>
+            <textarea id="bio" rows="4"></textarea>
+
+            <label for="phone">Утас</label>
+            <input id="phone" type="text">
+
+            <label for="profileImage">Профайлын зураг</label>
+            <input id="profileImage" type="file" accept="image/*">
+            <button id="uploadButton" type="button" class="secondary-button">Зураг хуулах</button>
+
+            <div class="image-preview-box">
+                <img id="imagePreview" alt="Профайлын зураг" class="image-preview hidden">
+            </div>
+
+            <div class="button-row">
+                <button type="submit">Профайл хадгалах</button>
+                <button id="loadButton" type="button" class="secondary-button">Профайл дуудах</button>
+                <button id="deleteButton" type="button" class="danger-button">Устгах</button>
+            </div>
+        </form>
+
+        <p id="message" class="message"></p>
+        <div id="profileInfo" class="profile-box"></div>
+    </div>
+
+    <script src="app.js?v=3"></script>
+</body>
+</html>

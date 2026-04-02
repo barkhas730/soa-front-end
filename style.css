@@ -1,0 +1,125 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fb, #d8e6ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+}
+
+.card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(31, 41, 55, 0.12);
+}
+
+.large-card {
+    max-width: 620px;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #6b7280;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    font-weight: 600;
+}
+
+input,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+button {
+    margin-top: 22px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.92;
+}
+
+.secondary-button {
+    background: #475569;
+}
+
+.danger-button {
+    background: #dc2626;
+}
+
+.message {
+    min-height: 24px;
+    margin-top: 18px;
+    font-weight: 600;
+}
+
+.small-text {
+    margin-top: 16px;
+    color: #6b7280;
+}
+
+.top-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: start;
+}
+
+.button-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.profile-box {
+    margin-top: 24px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #eff6ff;
+    min-height: 70px;
+    white-space: pre-line;
+}
+
+.image-preview-box {
+    margin-top: 16px;
+}
+
+.image-preview {
+    display: block;
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+}
+
+.hidden {
+    display: none;
+}
