@@ -1,6 +1,6 @@
-var SOAP_URL = "http://localhost:8081/ws";
-var JSON_URL = "http://localhost:8082/users";
-var FILE_URL = "http://localhost:8083/files";
+var SOAP_URL = "http://168.144.38.111:8081/ws";
+var JSON_URL = "https://lionfish-app-sptgr.ondigitalocean.app/users";
+var FILE_URL = "https://octopus-app-phhnx.ondigitalocean.app/files";
 var uploadedImageUrl = "";
 
 if (typeof window !== "undefined") {
