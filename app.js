@@ -60,8 +60,7 @@ function redirectToLogin(message) {
 }
 
 function isAuthFailure(result) {
-    var message = result && result.data && result.data.message ? String(result.data.message) : "";
-    return result && (result.status === 401 || result.status === 403 || /token|authorization|auth/i.test(message));
+    return result && (result.status === 401 || result.status === 403);
 }
 
 function parseJsonResponse(response) {
