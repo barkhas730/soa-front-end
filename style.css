@@ -4,6 +4,9 @@ body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f7fb, #d8e6ff);
     color: #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .card {
@@ -130,6 +133,7 @@ button:hover,
 
 .dashboard-body {
     background: #e9eef7;
+    display: block;
 }
 
 .dashboard-layout {

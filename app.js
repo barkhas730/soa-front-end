@@ -321,7 +321,7 @@ function initializeDashboardUi() {
     var navLinks = document.querySelectorAll(".nav-link");
 
     updateSidebar(null);
-    updateFilesCardMeta("Uploaded in this browser");
+    updateFilesCardMeta("Current browser only");
     setDashboardView("dashboardView");
 
     navLinks.forEach(function (link) {
