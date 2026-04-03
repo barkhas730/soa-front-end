@@ -9,9 +9,33 @@ if (typeof window !== "undefined") {
 }
 
 function showMessage(text) {
-    var message = document.getElementById("message");
-    if (message) {
-        message.textContent = text || "";
+    var profilePanel = document.getElementById("profileMessagePanel");
+    var filePanel = document.getElementById("fileMessagePanel");
+    var profileMessage = document.getElementById("profileMessage");
+    var fileMessage = document.getElementById("fileMessage");
+    var activeView = document.querySelector(".view-section.active");
+    var targetMessage = null;
+    var targetPanel = null;
+
+    if (profilePanel) {
+        profilePanel.classList.add("hidden");
+    }
+
+    if (filePanel) {
+        filePanel.classList.add("hidden");
+    }
+
+    if (activeView && activeView.id === "profileView") {
+        targetMessage = profileMessage;
+        targetPanel = profilePanel;
+    } else if (activeView && activeView.id === "fileView") {
+        targetMessage = fileMessage;
+        targetPanel = filePanel;
+    }
+
+    if (targetMessage && targetPanel && text) {
+        targetMessage.textContent = text;
+        targetPanel.classList.remove("hidden");
     }
 }
 
@@ -65,7 +89,7 @@ function clearSession() {
 
 function redirectToLogin(message) {
     clearSession();
-    setFlashMessage(message || "Ta dahin nevterne uu.");
+    setFlashMessage(message || "Дахин нэвтэрнэ үү.");
     window.location.href = "login.html";
 }
 
@@ -156,7 +180,7 @@ function saveProfile(payload) {
 function deleteProfile() {
     var profileId = getStoredProfileId();
     if (!profileId) {
-        return Promise.reject(new Error("Ustgah profile alga baina."));
+        return Promise.reject(new Error("Устгах профайл алга байна."));
     }
 
     return fetch(JSON_URL + "/" + profileId, {
@@ -171,7 +195,7 @@ function uploadProfileImage(file) {
     var formData;
 
     if (!file) {
-        return Promise.reject(new Error("Zurag songono uu."));
+        return Promise.reject(new Error("Зураг сонгоно уу."));
     }
 
     formData = new FormData();
@@ -236,7 +260,7 @@ function updateSidebar(profile) {
     var sidebarUserMeta = document.getElementById("sidebarUserMeta");
     var avatarCircle = document.getElementById("avatarCircle");
     var displayName = (profile && profile.name) || getStoredUsername() || "Хэрэглэгч";
-    var role = (profile && profile.bio) || "System User";
+    var role = (profile && profile.bio) || "Системийн хэрэглэгч";
 
     if (sidebarName) {
         sidebarName.textContent = displayName;
@@ -252,6 +276,18 @@ function updateSidebar(profile) {
 
     if (avatarCircle) {
         avatarCircle.textContent = getInitials(displayName);
+    }
+
+    if (document.getElementById("sidebarAvatarImage")) {
+        if (profile && profile.imageUrl) {
+            document.getElementById("sidebarAvatarImage").src = profile.imageUrl;
+            document.getElementById("sidebarAvatarImage").classList.remove("hidden");
+            avatarCircle.classList.add("hidden");
+        } else {
+            document.getElementById("sidebarAvatarImage").src = "";
+            document.getElementById("sidebarAvatarImage").classList.add("hidden");
+            avatarCircle.classList.remove("hidden");
+        }
     }
 }
 
@@ -285,14 +321,14 @@ function setDashboardView(viewId) {
     var titles = {
         dashboardView: {
             title: "Lab Demo Dashboard",
-            subtitle: "Системийн ерөнхий хэсэг"
+            subtitle: " "
         },
         profileView: {
             title: "Профайл",
             subtitle: "Хэрэглэгчийн мэдээлэл удирдах хэсэг"
         },
         fileView: {
-            title: "File Manager",
+            title: "Файл менежер",
             subtitle: "Зураг upload болон preview хэсэг"
         }
     };
@@ -321,7 +357,7 @@ function initializeDashboardUi() {
     var navLinks = document.querySelectorAll(".nav-link");
 
     updateSidebar(null);
-    updateFilesCardMeta("Current browser only");
+    updateFilesCardMeta("Зөвхөн энэ browser дээр");
     setDashboardView("dashboardView");
 
     navLinks.forEach(function (link) {
@@ -340,21 +376,21 @@ function renderProfile(profile) {
     profileInfo.textContent =
         "Profile ID: " + profile.id + "\n"
         + "User ID: " + profile.userId + "\n"
-        + "Ner: " + profile.name + "\n"
+        + "Нэр: " + profile.name + "\n"
         + "Email: " + profile.email + "\n"
-        + "Taniltsuulga: " + (profile.bio || "") + "\n"
-        + "Utas: " + (profile.phone || "") + "\n"
-        + "Zurgiin holboos: " + (profile.imageUrl || "");
+        + "Танилцуулга: " + (profile.bio || "") + "\n"
+        + "Утас: " + (profile.phone || "") + "\n"
+        + "Зургийн холбоос: " + (profile.imageUrl || "");
 
     updateSidebar(profile);
-    updateFilesCardMeta(profile.imageUrl ? "Profile image linked" : "No uploaded image");
+    updateFilesCardMeta(profile.imageUrl ? "Профайлын зураг холбогдсон" : "Зураг одоогоор алга");
 
     if (document.getElementById("jsonCardValue")) {
-        document.getElementById("jsonCardValue").textContent = "Connected";
+        document.getElementById("jsonCardValue").textContent = "Холбогдсон";
     }
 
     if (document.getElementById("jsonCardMeta")) {
-        document.getElementById("jsonCardMeta").textContent = "Profile data synced successfully";
+        document.getElementById("jsonCardMeta").textContent = "Профайлын өгөгдөл амжилттай синк хийгдлээ";
     }
 }
 
@@ -367,10 +403,10 @@ if (registerForm) {
 
         registerUser(username, password)
             .then(function (result) {
-                showMessage((result.data && result.data.message) || "Burtguuleh huselt duussan.");
+                showMessage((result.data && result.data.message) || "Бүртгүүлэх хүсэлт илгээгдлээ.");
             })
             .catch(function () {
-                showMessage("Burtguuleh huselt amjiltgui bolloo.");
+                showMessage("Бүртгүүлэх хүсэлт амжилтгүй боллоо.");
             });
     });
 }
@@ -386,7 +422,7 @@ if (loginForm) {
 
         loginUser(username, password)
             .then(function (result) {
-                showMessage((result.data && result.data.message) || "Nevtreh huselt duussan.");
+                showMessage((result.data && result.data.message) || "Нэвтрэх хүсэлт илгээгдлээ.");
                 if (result.data && result.data.token && result.data.userId) {
                     saveSession(result.data.token, result.data.userId);
                     saveUsername(username);
@@ -395,7 +431,7 @@ if (loginForm) {
                 }
             })
             .catch(function () {
-                showMessage("Nevtreh huselt amjiltgui bolloo.");
+                showMessage("Нэвтрэх хүсэлт амжилтгүй боллоо.");
             });
     });
 }
@@ -405,28 +441,28 @@ if (profileForm) {
     initializeDashboardUi();
 
     if (!getStoredToken() || !getStoredUserId()) {
-        redirectToLogin("Session oldsongui baina. Nevterne uu.");
+        redirectToLogin("Session олдсонгүй. Нэвтэрнэ үү.");
     } else {
         validateStoredSession().then(function (isValid) {
             if (!isValid) {
-                redirectToLogin("Token huchingui baina. Dahin nevterne uu.");
+                redirectToLogin("Токен хүчингүй байна. Дахин нэвтэрнэ үү.");
             } else {
-                setStatusBadge("soapStatus", "SOAP Auth: Active", "success");
-                setStatusBadge("restStatus", "REST API: Active", "success");
+                setStatusBadge("soapStatus", "SOAP Auth: Идэвхтэй", "success");
+                setStatusBadge("restStatus", "REST API: Идэвхтэй", "success");
 
                 if (document.getElementById("soapCardValue")) {
-                    document.getElementById("soapCardValue").textContent = "Active";
+                    document.getElementById("soapCardValue").textContent = "Идэвхтэй";
                 }
 
                 if (document.getElementById("soapCardMeta")) {
-                    document.getElementById("soapCardMeta").textContent = "Token validated successfully";
+                    document.getElementById("soapCardMeta").textContent = "Токен амжилттай баталгаажлаа";
                 }
             }
         });
     }
 
-    setStatusBadge("soapStatus", "SOAP Auth: Checking", "warning");
-    setStatusBadge("restStatus", "REST API: Checking", "warning");
+    setStatusBadge("soapStatus", "SOAP Auth: Шалгаж байна", "warning");
+    setStatusBadge("restStatus", "REST API: Шалгаж байна", "warning");
 
     document.getElementById("uploadZone").addEventListener("click", function () {
         document.getElementById("profileImage").click();
@@ -434,7 +470,7 @@ if (profileForm) {
 
     document.getElementById("profileImage").addEventListener("change", function () {
         if (this.files[0]) {
-            showMessage("Songoson file: " + this.files[0].name);
+            showMessage("Сонгосон файл: " + this.files[0].name);
         }
     });
 
@@ -444,11 +480,11 @@ if (profileForm) {
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
-                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        redirectToLogin(result.data.message || "Токен хүчингүй байна. Дахин нэвтэрнэ үү.");
                         return;
                     }
 
-                    showMessage(result.data.message || "Zurag huulj chadsangui.");
+                    showMessage(result.data.message || "Зураг хуулж чадсангүй.");
                     return;
                 }
 
@@ -456,11 +492,11 @@ if (profileForm) {
                 uploadedFilesCount += 1;
                 localStorage.setItem("uploadedFilesCount", String(uploadedFilesCount));
                 setImagePreview(uploadedImageUrl);
-                updateFilesCardMeta(result.data.originalFileName || "File uploaded successfully");
-                showMessage(result.data.message || "Zurag amjilttai huulagdlaa.");
+                updateFilesCardMeta(result.data.originalFileName || "Файл амжилттай хууллаа");
+                showMessage(result.data.message || "Зураг амжилттай хуулагдлаа.");
             })
             .catch(function (error) {
-                showMessage(error.message || "Zurag huulj chadsangui.");
+                showMessage(error.message || "Зураг хуулж чадсангүй.");
             });
     });
 
@@ -470,11 +506,11 @@ if (profileForm) {
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
-                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        redirectToLogin(result.data.message || "Токен хүчингүй байна. Дахин нэвтэрнэ үү.");
                         return;
                     }
 
-                    showMessage(result.data.message || "Profile duudaj chadsangui.");
+                    showMessage(result.data.message || "Профайл дуудаж чадсангүй.");
                     return;
                 }
 
@@ -487,10 +523,10 @@ if (profileForm) {
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
                 setDashboardView("profileView");
-                showMessage("Profile amjilttai duudagdlaa.");
+                showMessage("Профайл амжилттай дуудагдлаа.");
             })
             .catch(function () {
-                showMessage("Profile duudaj chadsangui.");
+                showMessage("Профайл дуудаж чадсангүй.");
             });
     });
 
@@ -514,11 +550,11 @@ if (profileForm) {
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
-                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        redirectToLogin(result.data.message || "Токен хүчингүй байна. Дахин нэвтэрнэ үү.");
                         return;
                     }
 
-                    showMessage(result.data.message || "Profile hadgalj chadsangui.");
+                    showMessage(result.data.message || "Профайл хадгалж чадсангүй.");
                     return;
                 }
 
@@ -527,10 +563,10 @@ if (profileForm) {
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
                 setDashboardView("profileView");
-                showMessage(hadProfile ? "Profile amjilttai shinechlegdlee." : "Profile amjilttai uuslee.");
+                showMessage(hadProfile ? "Профайл амжилттай шинэчлэгдлээ." : "Профайл амжилттай үүслээ.");
             })
             .catch(function () {
-                showMessage("Profile hadgalj chadsangui.");
+                showMessage("Профайл хадгалж чадсангүй.");
             });
     });
 
@@ -540,11 +576,11 @@ if (profileForm) {
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
-                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        redirectToLogin(result.data.message || "Токен хүчингүй байна. Дахин нэвтэрнэ үү.");
                         return;
                     }
 
-                    showMessage(result.data.message || "Profile ustgaj chadsangui.");
+                    showMessage(result.data.message || "Профайл устгаж чадсангүй.");
                     return;
                 }
 
@@ -558,12 +594,12 @@ if (profileForm) {
                     document.getElementById("jsonCardValue").textContent = "Deleted";
                 }
                 if (document.getElementById("jsonCardMeta")) {
-                    document.getElementById("jsonCardMeta").textContent = "Create a new profile to continue";
+                    document.getElementById("jsonCardMeta").textContent = "Шинэ профайл үүсгэнэ үү";
                 }
                 showMessage(result.data.message);
             })
             .catch(function (error) {
-                showMessage(error.message || "Profile ustgaj chadsangui.");
+                showMessage(error.message || "Профайл устгаж чадсангүй.");
             });
     });
 

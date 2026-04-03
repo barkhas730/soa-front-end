@@ -11,23 +11,29 @@
         <aside class="sidebar">
             <div class="brand-box">
                 <div class="brand-mark">L</div>
-                <span class="brand-text">LAB SYSTEM</span>
+                <span class="brand-text">SOA</span>
             </div>
 
             <div class="sidebar-profile">
-                <div id="avatarCircle" class="avatar-circle">AU</div>
+                <div class="avatar-shell">
+                    <img id="sidebarAvatarImage" alt="Хэрэглэгчийн зураг" class="sidebar-avatar-image hidden">
+                    <div id="avatarCircle" class="avatar-circle">AU</div>
+                </div>
                 <h2 id="sidebarName">Хэрэглэгч</h2>
-                <p id="sidebarRole">System User</p>
+                <p id="sidebarRole">Системийн хэрэглэгч</p>
                 <p id="sidebarUserMeta">ID: -</p>
             </div>
 
             <nav class="sidebar-nav">
                 <button type="button" class="nav-link active" data-view="dashboardView">Dashboard</button>
                 <button type="button" class="nav-link" data-view="profileView">Профайл</button>
-                <button type="button" class="nav-link" data-view="fileView">File Manager</button>
+                <button type="button" class="nav-link" data-view="fileView">Файл менежер</button>
             </nav>
 
-            <button id="logoutButton" class="logout-link" type="button">Системээс гарах</button>
+            <button id="logoutButton" class="logout-link" type="button">
+                <span class="logout-icon">⎋</span>
+                <span>Системээс гарах</span>
+            </button>
         </aside>
 
         <main class="dashboard-main">
@@ -37,8 +43,8 @@
                     <p id="viewSubtitle">Системийн ерөнхий хэсэг</p>
                 </div>
                 <div class="status-row">
-                    <span id="restStatus" class="status-pill warning">REST API: Checking</span>
-                    <span id="soapStatus" class="status-pill warning">SOAP Auth: Waiting</span>
+                    <span id="restStatus" class="status-pill warning">REST API: Шалгаж байна</span>
+                    <span id="soapStatus" class="status-pill warning">SOAP Auth: Хүлээж байна</span>
                 </div>
             </header>
 
@@ -46,25 +52,22 @@
                 <div class="stats-grid">
                     <article class="stat-card blue">
                         <p>SOAP Service</p>
-                        <h2 id="soapCardValue">Waiting</h2>
-                        <span id="soapCardMeta">Authentication status pending</span>
+                        <h2 id="soapCardValue">Хүлээж байна</h2>
+                        <span id="soapCardMeta">Нэвтрэлтийн төлөв шалгагдаагүй байна</span>
                     </article>
                     <article class="stat-card green">
                         <p>JSON Data Sync</p>
-                        <h2 id="jsonCardValue">Idle</h2>
-                        <span id="jsonCardMeta">Profile not loaded yet</span>
+                        <h2 id="jsonCardValue">Хүлээж байна</h2>
+                        <span id="jsonCardMeta">Профайл хараахан дуудагдаагүй</span>
                     </article>
                     <article class="stat-card amber">
                         <p>Browser Uploads</p>
                         <h2 id="filesCardValue">0 Files</h2>
-                        <span id="filesCardMeta">Current browser only</span>
+                        <span id="filesCardMeta">Зөвхөн энэ browser дээр</span>
                     </article>
                 </div>
 
-                <section class="panel placeholder-panel">
-                    <h2>Үндсэн хэсэг</h2>
-                    <p>Энэ dashboard хэсгийг одоохондоо хоосон үлдээв. Дараагийн lab-уудаар шинэ модуль, service, тайлан, analytics зэрэг контент энд нэмэгдэнэ.</p>
-                </section>
+                <section class="panel placeholder-panel"></section>
             </section>
 
             <section id="profileView" class="view-section">
@@ -105,6 +108,10 @@
                         <h3>Одоогийн төлөв</h3>
                         <pre id="profileInfo">Профайл дуудагдаагүй байна.</pre>
                     </div>
+
+                    <div id="profileMessagePanel" class="message-panel hidden">
+                        <p id="profileMessage">Системийн мэдээлэл энд харагдана.</p>
+                    </div>
                 </section>
             </section>
 
@@ -113,14 +120,14 @@
                     <div class="panel-head">
                         <div>
                             <h2>File & Image Service</h2>
-                            <p>File Manager service ашиглан зураг upload хийх</p>
+                            <p>Файл менежер service ашиглан зураг upload хийх</p>
                         </div>
                     </div>
 
                     <input id="profileImage" type="file" accept="image/*" class="hidden-input">
                     <button id="uploadZone" type="button" class="upload-zone">
                         <span class="upload-title">Файл чирж авчрах эсвэл сонгож оруулна уу</span>
-                        <span class="upload-subtitle">Image upload via File Manager Service</span>
+                        <span class="upload-subtitle">Файл менежер service-р зураг upload хийнэ</span>
                     </button>
 
                     <div class="button-row">
@@ -132,12 +139,12 @@
                         <img id="imagePreview" alt="Профайлын зураг" class="hidden">
                         <p id="imagePlaceholder">Upload хийсний дараа preview энд харагдана.</p>
                     </div>
+
+                    <div id="fileMessagePanel" class="message-panel hidden">
+                        <p id="fileMessage">Системийн мэдээлэл энд харагдана.</p>
+                    </div>
                 </section>
             </section>
-
-            <div class="message-panel">
-                <p id="message">SYSTEM LOG: Session шалгаж байна...</p>
-            </div>
         </main>
     </div>
 

@@ -180,10 +180,16 @@ button:hover,
     text-align: center;
 }
 
-.avatar-circle {
+.avatar-shell {
+    position: relative;
     width: 88px;
     height: 88px;
     margin: 0 auto 16px;
+}
+
+.avatar-circle {
+    width: 88px;
+    height: 88px;
     border-radius: 999px;
     background: #6366f1;
     border: 2px solid #818cf8;
@@ -192,6 +198,15 @@ button:hover,
     justify-content: center;
     font-size: 32px;
     font-weight: 700;
+}
+
+.sidebar-avatar-image {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 2px solid #818cf8;
+    display: block;
 }
 
 .sidebar-profile h2 {
@@ -228,13 +243,20 @@ button:hover,
 
 .logout-link {
     margin: 16px;
-    background: transparent;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid #334155;
     color: #f87171;
-    justify-content: flex-start;
+    justify-content: center;
+    gap: 10px;
 }
 
 .logout-link:hover {
     background: rgba(127, 29, 29, 0.25);
+}
+
+.logout-icon {
+    font-size: 18px;
+    line-height: 1;
 }
 
 .dashboard-main {
@@ -340,15 +362,6 @@ button:hover,
 
 .placeholder-panel {
     min-height: 280px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.placeholder-panel p {
-    max-width: 760px;
-    color: #64748b;
-    line-height: 1.7;
 }
 
 .panel-head {
@@ -454,7 +467,7 @@ button:hover,
 }
 
 .message-panel {
-    margin: 24px 32px 32px;
+    margin-top: 24px;
     padding: 16px 18px;
     border-radius: 16px;
     background: #dbeafe;
