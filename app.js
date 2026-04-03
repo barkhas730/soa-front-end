@@ -1,4 +1,4 @@
-var SOAP_URL = "https://soa-user-soap-ycgmc.ondigitalocean.app/ws";
+var AUTH_URL = "https://lionfish-app-sptgr.ondigitalocean.app/auth";
 var JSON_URL = "https://lionfish-app-sptgr.ondigitalocean.app/users";
 var FILE_URL = "https://octopus-app-phhnx.ondigitalocean.app/files";
 var uploadedImageUrl = "";
@@ -61,57 +61,43 @@ function redirectToLogin(message) {
 
 function isAuthFailure(result) {
     var message = result && result.data && result.data.message ? String(result.data.message) : "";
-    return result && (result.status === 401 || result.status === 403 || /token|authorization/i.test(message));
+    return result && (result.status === 401 || result.status === 403 || /token|authorization|auth/i.test(message));
 }
 
-function callSoap(operation, bodyXml) {
-    var envelope = '<?xml version="1.0" encoding="UTF-8"?>'
-        + '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:auth="http://lab06.com/usersoapservice/auth">'
-        + '<soapenv:Header/>'
-        + '<soapenv:Body>'
-        + '<auth:' + operation + '>'
-        + bodyXml
-        + '</auth:' + operation + '>'
-        + '</soapenv:Body>'
-        + '</soapenv:Envelope>';
-
-    return fetch(SOAP_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "text/xml;charset=UTF-8"
-        },
-        body: envelope
-    }).then(function (response) {
-        return response.text();
+function parseJsonResponse(response) {
+    return response.json().then(function (data) {
+        return {
+            ok: response.ok,
+            status: response.status,
+            data: data
+        };
     });
-}
-
-function getXmlValue(xmlText, tagName) {
-    var regex = new RegExp("<(?:[A-Za-z0-9_-]+:)?" + tagName + ">([\\s\\S]*?)</(?:[A-Za-z0-9_-]+:)?" + tagName + ">", "i");
-    var match = xmlText.match(regex);
-    return match && match.length > 1 ? match[1] : "";
 }
 
 function registerUser(username, password) {
-    var body = "<auth:username>" + username + "</auth:username>"
-        + "<auth:password>" + password + "</auth:password>";
-
-    return callSoap("RegisterUserRequest", body).then(function (xmlText) {
-        return getXmlValue(xmlText, "message");
-    });
+    return fetch(AUTH_URL + "/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    }).then(parseJsonResponse);
 }
 
 function loginUser(username, password) {
-    var body = "<auth:username>" + username + "</auth:username>"
-        + "<auth:password>" + password + "</auth:password>";
-
-    return callSoap("LoginUserRequest", body).then(function (xmlText) {
-        return {
-            message: getXmlValue(xmlText, "message"),
-            token: getXmlValue(xmlText, "token"),
-            userId: getXmlValue(xmlText, "userId")
-        };
-    });
+    return fetch(AUTH_URL + "/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    }).then(parseJsonResponse);
 }
 
 function validateStoredSession() {
@@ -121,9 +107,14 @@ function validateStoredSession() {
         return Promise.resolve(false);
     }
 
-    return callSoap("ValidateTokenRequest", "<auth:token>" + token + "</auth:token>")
-        .then(function (xmlText) {
-            return getXmlValue(xmlText, "valid") === "true";
+    return fetch(AUTH_URL + "/validate", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+        .then(parseJsonResponse)
+        .then(function (result) {
+            return result.ok && result.data.valid === true;
         })
         .catch(function () {
             return false;
@@ -183,15 +174,7 @@ function uploadProfileImage(file) {
             "Authorization": "Bearer " + getStoredToken()
         },
         body: formData
-    }).then(function (response) {
-        return response.json().then(function (data) {
-            return {
-                ok: response.ok,
-                status: response.status,
-                data: data
-            };
-        });
-    });
+    }).then(parseJsonResponse);
 }
 
 function setImagePreview(imageUrl) {
@@ -233,11 +216,11 @@ if (registerForm) {
         var password = document.getElementById("password").value;
 
         registerUser(username, password)
-            .then(function (message) {
-                showMessage(message);
+            .then(function (result) {
+                showMessage((result.data && result.data.message) || "Burtguuleh huselt duussan.");
             })
             .catch(function () {
-                showMessage("Burtguuleh huselt amjiltgui bolлоо.");
+                showMessage("Burtguuleh huselt amjiltgui bolloo.");
             });
     });
 }
@@ -253,15 +236,15 @@ if (loginForm) {
 
         loginUser(username, password)
             .then(function (result) {
-                showMessage(result.message);
-                if (result.token && result.userId) {
-                    saveSession(result.token, result.userId);
+                showMessage((result.data && result.data.message) || "Nevtreh huselt duussan.");
+                if (result.data && result.data.token && result.data.userId) {
+                    saveSession(result.data.token, result.data.userId);
                     localStorage.removeItem("flashMessage");
                     window.location.href = "profile.html";
                 }
             })
             .catch(function () {
-                showMessage("Nevtreh huselt amjiltgui bolлоо.");
+                showMessage("Nevtreh huselt amjiltgui bolloo.");
             });
     });
 }
@@ -303,11 +286,7 @@ if (profileForm) {
 
     document.getElementById("loadButton").addEventListener("click", function () {
         getProfileByUserId()
-            .then(function (response) {
-                return response.json().then(function (data) {
-                    return { ok: response.ok, status: response.status, data: data };
-                });
-            })
+            .then(parseJsonResponse)
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
@@ -350,11 +329,7 @@ if (profileForm) {
         };
 
         saveProfile(payload)
-            .then(function (response) {
-                return response.json().then(function (data) {
-                    return { ok: response.ok, status: response.status, data: data };
-                });
-            })
+            .then(parseJsonResponse)
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
@@ -379,11 +354,7 @@ if (profileForm) {
 
     document.getElementById("deleteButton").addEventListener("click", function () {
         deleteProfile()
-            .then(function (response) {
-                return response.json().then(function (data) {
-                    return { ok: response.ok, status: response.status, data: data };
-                });
-            })
+            .then(parseJsonResponse)
             .then(function (result) {
                 if (!result.ok) {
                     if (isAuthFailure(result)) {
