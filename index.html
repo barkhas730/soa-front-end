@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=register.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOA Frontend</title>
 </head>
 <body>
-    <p>Redirecting to <a href="register.html">register page</a>...</p>
+    <p>Түр хүлээнэ үү...</p>
+
+    <script>
+        (function () {
+            var token = localStorage.getItem("token");
+            var userId = localStorage.getItem("userId");
+
+            if (token && userId) {
+                window.location.replace("profile.html");
+                return;
+            }
+
+            window.location.replace("login.html");
+        })();
+    </script>
 </body>
 </html>
