@@ -6,20 +6,10 @@
     <title>SOA Frontend</title>
 </head>
 <body>
-    <p>Түр хүлээнэ үү...</p>
+    <p>Tur huleene uu...</p>
 
     <script>
-        (function () {
-            var token = localStorage.getItem("token");
-            var userId = localStorage.getItem("userId");
-
-            if (token && userId) {
-                window.location.replace("profile.html");
-                return;
-            }
-
-            window.location.replace("login.html");
-        })();
+        window.location.replace("login.html");
     </script>
 </body>
 </html>

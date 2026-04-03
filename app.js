@@ -14,6 +14,22 @@ function showMessage(text) {
     }
 }
 
+function setFlashMessage(text) {
+    if (text) {
+        localStorage.setItem("flashMessage", text);
+    } else {
+        localStorage.removeItem("flashMessage");
+    }
+}
+
+function showFlashMessage() {
+    var flashMessage = localStorage.getItem("flashMessage");
+    if (flashMessage) {
+        showMessage(flashMessage);
+        localStorage.removeItem("flashMessage");
+    }
+}
+
 function getStoredToken() {
     return localStorage.getItem("token");
 }
@@ -35,6 +51,17 @@ function clearSession() {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("profileId");
+}
+
+function redirectToLogin(message) {
+    clearSession();
+    setFlashMessage(message || "Ta dahin nevterne uu.");
+    window.location.href = "login.html";
+}
+
+function isAuthFailure(result) {
+    var message = result && result.data && result.data.message ? String(result.data.message) : "";
+    return result && (result.status === 401 || result.status === 403 || /token|authorization/i.test(message));
 }
 
 function callSoap(operation, bodyXml) {
@@ -87,6 +114,22 @@ function loginUser(username, password) {
     });
 }
 
+function validateStoredSession() {
+    var token = getStoredToken();
+
+    if (!token || !getStoredUserId()) {
+        return Promise.resolve(false);
+    }
+
+    return callSoap("ValidateTokenRequest", "<auth:token>" + token + "</auth:token>")
+        .then(function (xmlText) {
+            return getXmlValue(xmlText, "valid") === "true";
+        })
+        .catch(function () {
+            return false;
+        });
+}
+
 function getProfileByUserId() {
     return fetch(JSON_URL + "/by-user?userId=" + getStoredUserId(), {
         headers: {
@@ -113,7 +156,7 @@ function saveProfile(payload) {
 function deleteProfile() {
     var profileId = getStoredProfileId();
     if (!profileId) {
-        return Promise.reject(new Error("Устгах профайл алга байна."));
+        return Promise.reject(new Error("Ustgah profile alga baina."));
     }
 
     return fetch(JSON_URL + "/" + profileId, {
@@ -128,7 +171,7 @@ function uploadProfileImage(file) {
     var formData;
 
     if (!file) {
-        return Promise.reject(new Error("Зураг сонгоно уу."));
+        return Promise.reject(new Error("Zurag songono uu."));
     }
 
     formData = new FormData();
@@ -144,6 +187,7 @@ function uploadProfileImage(file) {
         return response.json().then(function (data) {
             return {
                 ok: response.ok,
+                status: response.status,
                 data: data
             };
         });
@@ -172,13 +216,13 @@ function renderProfile(profile) {
     }
 
     profileInfo.textContent =
-        "Профайлын ID: " + profile.id + "\n"
-        + "Хэрэглэгчийн ID: " + profile.userId + "\n"
-        + "Нэр: " + profile.name + "\n"
-        + "И-мэйл: " + profile.email + "\n"
-        + "Танилцуулга: " + (profile.bio || "") + "\n"
-        + "Утас: " + (profile.phone || "") + "\n"
-        + "Зургийн холбоос: " + (profile.imageUrl || "");
+        "Profile ID: " + profile.id + "\n"
+        + "User ID: " + profile.userId + "\n"
+        + "Ner: " + profile.name + "\n"
+        + "Email: " + profile.email + "\n"
+        + "Taniltsuulga: " + (profile.bio || "") + "\n"
+        + "Utas: " + (profile.phone || "") + "\n"
+        + "Zurgiin holboos: " + (profile.imageUrl || "");
 }
 
 var registerForm = document.getElementById("registerForm");
@@ -193,13 +237,15 @@ if (registerForm) {
                 showMessage(message);
             })
             .catch(function () {
-                showMessage("Бүртгүүлэх хүсэлт амжилтгүй боллоо.");
+                showMessage("Burtguuleh huselt amjiltgui bolлоо.");
             });
     });
 }
 
 var loginForm = document.getElementById("loginForm");
 if (loginForm) {
+    showFlashMessage();
+
     loginForm.addEventListener("submit", function (event) {
         event.preventDefault();
         var username = document.getElementById("username").value;
@@ -210,11 +256,12 @@ if (loginForm) {
                 showMessage(result.message);
                 if (result.token && result.userId) {
                     saveSession(result.token, result.userId);
+                    localStorage.removeItem("flashMessage");
                     window.location.href = "profile.html";
                 }
             })
             .catch(function () {
-                showMessage("Нэвтрэх хүсэлт амжилтгүй боллоо.");
+                showMessage("Nevtreh huselt amjiltgui bolлоо.");
             });
     });
 }
@@ -222,7 +269,13 @@ if (loginForm) {
 var profileForm = document.getElementById("profileForm");
 if (profileForm) {
     if (!getStoredToken() || !getStoredUserId()) {
-        window.location.href = "login.html";
+        redirectToLogin("Session oldsongui baina. Nevterne uu.");
+    } else {
+        validateStoredSession().then(function (isValid) {
+            if (!isValid) {
+                redirectToLogin("Token huchingui baina. Dahin nevterne uu.");
+            }
+        });
     }
 
     document.getElementById("uploadButton").addEventListener("click", function () {
@@ -230,16 +283,21 @@ if (profileForm) {
         uploadProfileImage(file)
             .then(function (result) {
                 if (!result.ok) {
-                    showMessage(result.data.message || "Зураг хуулж чадсангүй.");
+                    if (isAuthFailure(result)) {
+                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        return;
+                    }
+
+                    showMessage(result.data.message || "Zurag huulj chadsangui.");
                     return;
                 }
 
                 uploadedImageUrl = result.data.fileUrl || "";
                 setImagePreview(uploadedImageUrl);
-                showMessage(result.data.message || "Зураг амжилттай хуулагдлаа.");
+                showMessage(result.data.message || "Zurag amjilttai huulagdlaa.");
             })
             .catch(function (error) {
-                showMessage(error.message || "Зураг хуулж чадсангүй.");
+                showMessage(error.message || "Zurag huulj chadsangui.");
             });
     });
 
@@ -247,12 +305,17 @@ if (profileForm) {
         getProfileByUserId()
             .then(function (response) {
                 return response.json().then(function (data) {
-                    return { ok: response.ok, data: data };
+                    return { ok: response.ok, status: response.status, data: data };
                 });
             })
             .then(function (result) {
                 if (!result.ok) {
-                    showMessage(result.data.message || "Профайл дуудаж чадсангүй.");
+                    if (isAuthFailure(result)) {
+                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        return;
+                    }
+
+                    showMessage(result.data.message || "Profile duudaj chadsangui.");
                     return;
                 }
 
@@ -264,10 +327,10 @@ if (profileForm) {
                 document.getElementById("phone").value = result.data.phone || "";
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
-                showMessage("Профайл амжилттай дуудагдлаа.");
+                showMessage("Profile amjilttai duudagdlaa.");
             })
             .catch(function () {
-                showMessage("Профайл дуудаж чадсангүй.");
+                showMessage("Profile duudaj chadsangui.");
             });
     });
 
@@ -289,12 +352,17 @@ if (profileForm) {
         saveProfile(payload)
             .then(function (response) {
                 return response.json().then(function (data) {
-                    return { ok: response.ok, data: data };
+                    return { ok: response.ok, status: response.status, data: data };
                 });
             })
             .then(function (result) {
                 if (!result.ok) {
-                    showMessage(result.data.message || "Профайлыг хадгалж чадсангүй.");
+                    if (isAuthFailure(result)) {
+                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        return;
+                    }
+
+                    showMessage(result.data.message || "Profile hadgalj chadsangui.");
                     return;
                 }
 
@@ -302,10 +370,10 @@ if (profileForm) {
                 localStorage.setItem("profileId", result.data.id);
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
-                showMessage(hadProfile ? "Профайл амжилттай шинэчлэгдлээ." : "Профайл амжилттай үүслээ.");
+                showMessage(hadProfile ? "Profile amjilttai shinechlegdlee." : "Profile amjilttai uuslee.");
             })
             .catch(function () {
-                showMessage("Профайлыг хадгалж чадсангүй.");
+                showMessage("Profile hadgalj chadsangui.");
             });
     });
 
@@ -313,12 +381,17 @@ if (profileForm) {
         deleteProfile()
             .then(function (response) {
                 return response.json().then(function (data) {
-                    return { ok: response.ok, data: data };
+                    return { ok: response.ok, status: response.status, data: data };
                 });
             })
             .then(function (result) {
                 if (!result.ok) {
-                    showMessage(result.data.message || "Профайлыг устгаж чадсангүй.");
+                    if (isAuthFailure(result)) {
+                        redirectToLogin(result.data.message || "Token huchingui baina. Dahin nevterne uu.");
+                        return;
+                    }
+
+                    showMessage(result.data.message || "Profile ustgaj chadsangui.");
                     return;
                 }
 
@@ -330,7 +403,7 @@ if (profileForm) {
                 showMessage(result.data.message);
             })
             .catch(function (error) {
-                showMessage(error.message || "Профайлыг устгаж чадсангүй.");
+                showMessage(error.message || "Profile ustgaj chadsangui.");
             });
     });
 
