@@ -2,6 +2,7 @@ var AUTH_URL = "https://lionfish-app-sptgr.ondigitalocean.app/auth";
 var JSON_URL = "https://lionfish-app-sptgr.ondigitalocean.app/users";
 var FILE_URL = "https://octopus-app-phhnx.ondigitalocean.app/files";
 var uploadedImageUrl = "";
+var uploadedFilesCount = Number(localStorage.getItem("uploadedFilesCount") || "0");
 
 if (typeof window !== "undefined") {
     window.frontendLoaded = true;
@@ -42,15 +43,24 @@ function getStoredProfileId() {
     return localStorage.getItem("profileId");
 }
 
+function getStoredUsername() {
+    return localStorage.getItem("username");
+}
+
 function saveSession(token, userId) {
     localStorage.setItem("token", token);
     localStorage.setItem("userId", userId);
+}
+
+function saveUsername(username) {
+    localStorage.setItem("username", username);
 }
 
 function clearSession() {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("profileId");
+    localStorage.removeItem("username");
 }
 
 function redirectToLogin(message) {
@@ -178,6 +188,9 @@ function uploadProfileImage(file) {
 
 function setImagePreview(imageUrl) {
     var preview = document.getElementById("imagePreview");
+    var placeholder = document.getElementById("imagePlaceholder");
+    var uploadedLink = document.getElementById("uploadedLink");
+
     if (!preview) {
         return;
     }
@@ -185,10 +198,137 @@ function setImagePreview(imageUrl) {
     if (imageUrl) {
         preview.src = imageUrl;
         preview.classList.remove("hidden");
+        if (placeholder) {
+            placeholder.classList.add("hidden");
+        }
+        if (uploadedLink) {
+            uploadedLink.href = imageUrl;
+            uploadedLink.classList.remove("hidden");
+        }
     } else {
         preview.src = "";
         preview.classList.add("hidden");
+        if (placeholder) {
+            placeholder.classList.remove("hidden");
+        }
+        if (uploadedLink) {
+            uploadedLink.href = "#";
+            uploadedLink.classList.add("hidden");
+        }
     }
+}
+
+function getInitials(value) {
+    var words = (value || "User").trim().split(/\s+/).filter(Boolean);
+
+    if (!words.length) {
+        return "U";
+    }
+
+    return words.slice(0, 2).map(function (word) {
+        return word.charAt(0).toUpperCase();
+    }).join("");
+}
+
+function updateSidebar(profile) {
+    var sidebarName = document.getElementById("sidebarName");
+    var sidebarRole = document.getElementById("sidebarRole");
+    var sidebarUserMeta = document.getElementById("sidebarUserMeta");
+    var avatarCircle = document.getElementById("avatarCircle");
+    var displayName = (profile && profile.name) || getStoredUsername() || "Хэрэглэгч";
+    var role = (profile && profile.bio) || "System User";
+
+    if (sidebarName) {
+        sidebarName.textContent = displayName;
+    }
+
+    if (sidebarRole) {
+        sidebarRole.textContent = role;
+    }
+
+    if (sidebarUserMeta) {
+        sidebarUserMeta.textContent = "ID: " + (getStoredUserId() || "-") + ((profile && profile.email) ? " | " + profile.email : "");
+    }
+
+    if (avatarCircle) {
+        avatarCircle.textContent = getInitials(displayName);
+    }
+}
+
+function setStatusBadge(elementId, text, tone) {
+    var element = document.getElementById(elementId);
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = text;
+    element.className = "status-pill " + (tone || "warning");
+}
+
+function updateFilesCardMeta(text) {
+    var filesCardValue = document.getElementById("filesCardValue");
+    var filesCardMeta = document.getElementById("filesCardMeta");
+
+    if (filesCardValue) {
+        filesCardValue.textContent = uploadedFilesCount + " File" + (uploadedFilesCount === 1 ? "" : "s");
+    }
+
+    if (filesCardMeta && text) {
+        filesCardMeta.textContent = text;
+    }
+}
+
+function setDashboardView(viewId) {
+    var views = document.querySelectorAll(".view-section");
+    var links = document.querySelectorAll(".nav-link");
+    var titles = {
+        dashboardView: {
+            title: "Lab Demo Dashboard",
+            subtitle: "Системийн ерөнхий хэсэг"
+        },
+        profileView: {
+            title: "Профайл",
+            subtitle: "Хэрэглэгчийн мэдээлэл удирдах хэсэг"
+        },
+        fileView: {
+            title: "File Manager",
+            subtitle: "Зураг upload болон preview хэсэг"
+        }
+    };
+    var currentTitle = titles[viewId] || titles.dashboardView;
+    var viewTitle = document.getElementById("viewTitle");
+    var viewSubtitle = document.getElementById("viewSubtitle");
+
+    views.forEach(function (view) {
+        view.classList.toggle("active", view.id === viewId);
+    });
+
+    links.forEach(function (link) {
+        link.classList.toggle("active", link.getAttribute("data-view") === viewId);
+    });
+
+    if (viewTitle) {
+        viewTitle.textContent = currentTitle.title;
+    }
+
+    if (viewSubtitle) {
+        viewSubtitle.textContent = currentTitle.subtitle;
+    }
+}
+
+function initializeDashboardUi() {
+    var navLinks = document.querySelectorAll(".nav-link");
+
+    updateSidebar(null);
+    updateFilesCardMeta("Uploaded in this browser");
+    setDashboardView("dashboardView");
+
+    navLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+            setDashboardView(link.getAttribute("data-view"));
+        });
+    });
 }
 
 function renderProfile(profile) {
@@ -205,6 +345,17 @@ function renderProfile(profile) {
         + "Taniltsuulga: " + (profile.bio || "") + "\n"
         + "Utas: " + (profile.phone || "") + "\n"
         + "Zurgiin holboos: " + (profile.imageUrl || "");
+
+    updateSidebar(profile);
+    updateFilesCardMeta(profile.imageUrl ? "Profile image linked" : "No uploaded image");
+
+    if (document.getElementById("jsonCardValue")) {
+        document.getElementById("jsonCardValue").textContent = "Connected";
+    }
+
+    if (document.getElementById("jsonCardMeta")) {
+        document.getElementById("jsonCardMeta").textContent = "Profile data synced successfully";
+    }
 }
 
 var registerForm = document.getElementById("registerForm");
@@ -238,6 +389,7 @@ if (loginForm) {
                 showMessage((result.data && result.data.message) || "Nevtreh huselt duussan.");
                 if (result.data && result.data.token && result.data.userId) {
                     saveSession(result.data.token, result.data.userId);
+                    saveUsername(username);
                     localStorage.removeItem("flashMessage");
                     window.location.href = "profile.html";
                 }
@@ -250,15 +402,41 @@ if (loginForm) {
 
 var profileForm = document.getElementById("profileForm");
 if (profileForm) {
+    initializeDashboardUi();
+
     if (!getStoredToken() || !getStoredUserId()) {
         redirectToLogin("Session oldsongui baina. Nevterne uu.");
     } else {
         validateStoredSession().then(function (isValid) {
             if (!isValid) {
                 redirectToLogin("Token huchingui baina. Dahin nevterne uu.");
+            } else {
+                setStatusBadge("soapStatus", "SOAP Auth: Active", "success");
+                setStatusBadge("restStatus", "REST API: Active", "success");
+
+                if (document.getElementById("soapCardValue")) {
+                    document.getElementById("soapCardValue").textContent = "Active";
+                }
+
+                if (document.getElementById("soapCardMeta")) {
+                    document.getElementById("soapCardMeta").textContent = "Token validated successfully";
+                }
             }
         });
     }
+
+    setStatusBadge("soapStatus", "SOAP Auth: Checking", "warning");
+    setStatusBadge("restStatus", "REST API: Checking", "warning");
+
+    document.getElementById("uploadZone").addEventListener("click", function () {
+        document.getElementById("profileImage").click();
+    });
+
+    document.getElementById("profileImage").addEventListener("change", function () {
+        if (this.files[0]) {
+            showMessage("Songoson file: " + this.files[0].name);
+        }
+    });
 
     document.getElementById("uploadButton").addEventListener("click", function () {
         var file = document.getElementById("profileImage").files[0];
@@ -275,7 +453,10 @@ if (profileForm) {
                 }
 
                 uploadedImageUrl = result.data.fileUrl || "";
+                uploadedFilesCount += 1;
+                localStorage.setItem("uploadedFilesCount", String(uploadedFilesCount));
                 setImagePreview(uploadedImageUrl);
+                updateFilesCardMeta(result.data.originalFileName || "File uploaded successfully");
                 showMessage(result.data.message || "Zurag amjilttai huulagdlaa.");
             })
             .catch(function (error) {
@@ -305,6 +486,7 @@ if (profileForm) {
                 document.getElementById("phone").value = result.data.phone || "";
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
+                setDashboardView("profileView");
                 showMessage("Profile amjilttai duudagdlaa.");
             })
             .catch(function () {
@@ -344,6 +526,7 @@ if (profileForm) {
                 localStorage.setItem("profileId", result.data.id);
                 setImagePreview(uploadedImageUrl);
                 renderProfile(result.data);
+                setDashboardView("profileView");
                 showMessage(hadProfile ? "Profile amjilttai shinechlegdlee." : "Profile amjilttai uuslee.");
             })
             .catch(function () {
@@ -370,6 +553,13 @@ if (profileForm) {
                 document.getElementById("profileForm").reset();
                 document.getElementById("profileInfo").textContent = "";
                 setImagePreview("");
+                updateSidebar(null);
+                if (document.getElementById("jsonCardValue")) {
+                    document.getElementById("jsonCardValue").textContent = "Deleted";
+                }
+                if (document.getElementById("jsonCardMeta")) {
+                    document.getElementById("jsonCardMeta").textContent = "Create a new profile to continue";
+                }
                 showMessage(result.data.message);
             })
             .catch(function (error) {

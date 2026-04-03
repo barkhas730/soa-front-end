@@ -3,51 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профайл</title>
+    <title>Lab Demo Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="card large-card">
-        <div class="top-row">
-            <div>
-                <h1>Миний профайл</h1>
-                <p class="subtitle">Профайлаа үүсгэх, харах, засах, устгах, зураг байршуулах боломжтой.</p>
-            </div>
-            <button id="logoutButton" class="secondary-button" type="button">Гарах</button>
-        </div>
-
-        <form id="profileForm">
-            <label for="name">Нэр</label>
-            <input id="name" type="text" required>
-
-            <label for="email">И-мэйл</label>
-            <input id="email" type="email" required>
-
-            <label for="bio">Танилцуулга</label>
-            <textarea id="bio" rows="4"></textarea>
-
-            <label for="phone">Утас</label>
-            <input id="phone" type="text">
-
-            <label for="profileImage">Профайлын зураг</label>
-            <input id="profileImage" type="file" accept="image/*">
-            <button id="uploadButton" type="button" class="secondary-button">Зураг хуулах</button>
-
-            <div class="image-preview-box">
-                <img id="imagePreview" alt="Профайлын зураг" class="image-preview hidden">
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand-box">
+                <div class="brand-mark">L</div>
+                <span class="brand-text">LAB SYSTEM</span>
             </div>
 
-            <div class="button-row">
-                <button type="submit">Профайл хадгалах</button>
-                <button id="loadButton" type="button" class="secondary-button">Профайл дуудах</button>
-                <button id="deleteButton" type="button" class="danger-button">Устгах</button>
+            <div class="sidebar-profile">
+                <div id="avatarCircle" class="avatar-circle">AU</div>
+                <h2 id="sidebarName">Хэрэглэгч</h2>
+                <p id="sidebarRole">System User</p>
+                <p id="sidebarUserMeta">ID: -</p>
             </div>
-        </form>
 
-        <p id="message" class="message"></p>
-        <div id="profileInfo" class="profile-box"></div>
+            <nav class="sidebar-nav">
+                <button type="button" class="nav-link active" data-view="dashboardView">Dashboard</button>
+                <button type="button" class="nav-link" data-view="profileView">Профайл</button>
+                <button type="button" class="nav-link" data-view="fileView">File Manager</button>
+            </nav>
+
+            <button id="logoutButton" class="logout-link" type="button">Системээс гарах</button>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div>
+                    <h1 id="viewTitle">Lab Demo Dashboard</h1>
+                    <p id="viewSubtitle">Системийн ерөнхий хэсэг</p>
+                </div>
+                <div class="status-row">
+                    <span id="restStatus" class="status-pill warning">REST API: Checking</span>
+                    <span id="soapStatus" class="status-pill warning">SOAP Auth: Waiting</span>
+                </div>
+            </header>
+
+            <section id="dashboardView" class="view-section active">
+                <div class="stats-grid">
+                    <article class="stat-card blue">
+                        <p>SOAP Service</p>
+                        <h2 id="soapCardValue">Waiting</h2>
+                        <span id="soapCardMeta">Authentication status pending</span>
+                    </article>
+                    <article class="stat-card green">
+                        <p>JSON Data Sync</p>
+                        <h2 id="jsonCardValue">Idle</h2>
+                        <span id="jsonCardMeta">Profile not loaded yet</span>
+                    </article>
+                    <article class="stat-card amber">
+                        <p>Files Uploaded</p>
+                        <h2 id="filesCardValue">0 Files</h2>
+                        <span id="filesCardMeta">Uploaded in this browser</span>
+                    </article>
+                </div>
+
+                <section class="panel placeholder-panel">
+                    <h2>Үндсэн хэсэг</h2>
+                    <p>Энэ dashboard хэсгийг одоохондоо хоосон үлдээв. Дараагийн lab-уудаар шинэ модуль, service, тайлан, analytics зэрэг контент энд нэмэгдэнэ.</p>
+                </section>
+            </section>
+
+            <section id="profileView" class="view-section">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Профайл мэдээлэл</h2>
+                            <p>REST JSON service ашиглан профайл үүсгэх, дуудах, засах, устгах</p>
+                        </div>
+                        <button id="loadButton" type="button" class="ghost-button">Дуудах</button>
+                    </div>
+
+                    <form id="profileForm" class="profile-form">
+                        <div class="field-grid">
+                            <div>
+                                <label for="name">Нэр</label>
+                                <input id="name" type="text" required>
+                            </div>
+                            <div>
+                                <label for="phone">Утас</label>
+                                <input id="phone" type="text">
+                            </div>
+                        </div>
+
+                        <label for="email">Мэйл хаяг</label>
+                        <input id="email" type="email" required>
+
+                        <label for="bio">Танилцуулга</label>
+                        <textarea id="bio" rows="4"></textarea>
+
+                        <div class="button-row">
+                            <button type="submit">Хадгалах</button>
+                            <button id="deleteButton" type="button" class="danger-button">Устгах</button>
+                        </div>
+                    </form>
+
+                    <div class="info-box">
+                        <h3>Одоогийн төлөв</h3>
+                        <pre id="profileInfo">Профайл дуудагдаагүй байна.</pre>
+                    </div>
+                </section>
+            </section>
+
+            <section id="fileView" class="view-section">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>File & Image Service</h2>
+                            <p>File Manager service ашиглан зураг upload хийх</p>
+                        </div>
+                    </div>
+
+                    <input id="profileImage" type="file" accept="image/*" class="hidden-input">
+                    <button id="uploadZone" type="button" class="upload-zone">
+                        <span class="upload-title">Файл чирж авчрах эсвэл сонгож оруулна уу</span>
+                        <span class="upload-subtitle">Image upload via File Manager Service</span>
+                    </button>
+
+                    <div class="button-row">
+                        <button id="uploadButton" type="button">Зураг хуулах</button>
+                        <a id="uploadedLink" href="#" target="_blank" rel="noopener noreferrer" class="secondary-link hidden">Файлыг нээх</a>
+                    </div>
+
+                    <div class="image-panel">
+                        <img id="imagePreview" alt="Профайлын зураг" class="hidden">
+                        <p id="imagePlaceholder">Upload хийсний дараа preview энд харагдана.</p>
+                    </div>
+                </section>
+            </section>
+
+            <div class="message-panel">
+                <p id="message">SYSTEM LOG: Session шалгаж байна...</p>
+            </div>
+        </main>
     </div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
