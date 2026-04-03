@@ -71,6 +71,10 @@ function getStoredUsername() {
     return localStorage.getItem("username");
 }
 
+function getStoredImageUrl() {
+    return localStorage.getItem("imageUrl");
+}
+
 function saveSession(token, userId) {
     localStorage.setItem("token", token);
     localStorage.setItem("userId", userId);
@@ -80,11 +84,20 @@ function saveUsername(username) {
     localStorage.setItem("username", username);
 }
 
+function saveImageUrl(imageUrl) {
+    if (imageUrl) {
+        localStorage.setItem("imageUrl", imageUrl);
+    } else {
+        localStorage.removeItem("imageUrl");
+    }
+}
+
 function clearSession() {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("profileId");
     localStorage.removeItem("username");
+    localStorage.removeItem("imageUrl");
 }
 
 function redirectToLogin(message) {
@@ -259,8 +272,10 @@ function updateSidebar(profile) {
     var sidebarRole = document.getElementById("sidebarRole");
     var sidebarUserMeta = document.getElementById("sidebarUserMeta");
     var avatarCircle = document.getElementById("avatarCircle");
+    var sidebarAvatarImage = document.getElementById("sidebarAvatarImage");
     var displayName = (profile && profile.name) || getStoredUsername() || "Хэрэглэгч";
     var role = (profile && profile.bio) || "Системийн хэрэглэгч";
+    var imageUrl = (profile && profile.imageUrl) || getStoredImageUrl();
 
     if (sidebarName) {
         sidebarName.textContent = displayName;
@@ -278,14 +293,14 @@ function updateSidebar(profile) {
         avatarCircle.textContent = getInitials(displayName);
     }
 
-    if (document.getElementById("sidebarAvatarImage")) {
-        if (profile && profile.imageUrl) {
-            document.getElementById("sidebarAvatarImage").src = profile.imageUrl;
-            document.getElementById("sidebarAvatarImage").classList.remove("hidden");
+    if (sidebarAvatarImage) {
+        if (imageUrl) {
+            sidebarAvatarImage.src = imageUrl;
+            sidebarAvatarImage.classList.remove("hidden");
             avatarCircle.classList.add("hidden");
         } else {
-            document.getElementById("sidebarAvatarImage").src = "";
-            document.getElementById("sidebarAvatarImage").classList.add("hidden");
+            sidebarAvatarImage.src = "";
+            sidebarAvatarImage.classList.add("hidden");
             avatarCircle.classList.remove("hidden");
         }
     }
@@ -383,6 +398,7 @@ function renderProfile(profile) {
         + "Зургийн холбоос: " + (profile.imageUrl || "");
 
     updateSidebar(profile);
+    saveImageUrl(profile.imageUrl || "");
     updateFilesCardMeta(profile.imageUrl ? "Профайлын зураг холбогдсон" : "Зураг одоогоор алга");
 
     if (document.getElementById("jsonCardValue")) {
@@ -489,9 +505,11 @@ if (profileForm) {
                 }
 
                 uploadedImageUrl = result.data.fileUrl || "";
+                saveImageUrl(uploadedImageUrl);
                 uploadedFilesCount += 1;
                 localStorage.setItem("uploadedFilesCount", String(uploadedFilesCount));
                 setImagePreview(uploadedImageUrl);
+                updateSidebar({ imageUrl: uploadedImageUrl });
                 updateFilesCardMeta(result.data.originalFileName || "Файл амжилттай хууллаа");
                 showMessage(result.data.message || "Зураг амжилттай хуулагдлаа.");
             })
@@ -585,6 +603,7 @@ if (profileForm) {
                 }
 
                 uploadedImageUrl = "";
+                saveImageUrl("");
                 localStorage.removeItem("profileId");
                 document.getElementById("profileForm").reset();
                 document.getElementById("profileInfo").textContent = "";
