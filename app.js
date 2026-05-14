@@ -1,7 +1,8 @@
 var runtimeConfig = (typeof window !== "undefined" && window.APP_CONFIG) ? window.APP_CONFIG : {};
-var AUTH_URL = runtimeConfig.AUTH_URL || "https://lionfish-app-sptgr.ondigitalocean.app/auth";
-var JSON_URL = runtimeConfig.JSON_URL || "https://lionfish-app-sptgr.ondigitalocean.app/users";
-var FILE_URL = runtimeConfig.FILE_URL || "https://octopus-app-phhnx.ondigitalocean.app/files";
+var GATEWAY_URL = runtimeConfig.GATEWAY_URL || "http://localhost:8080";
+var AUTH_URL = runtimeConfig.AUTH_URL || (GATEWAY_URL + "/api/auth");
+var JSON_URL = runtimeConfig.JSON_URL || (GATEWAY_URL + "/api/users");
+var FILE_URL = runtimeConfig.FILE_URL || (GATEWAY_URL + "/api/files");
 var uploadedImageUrl = "";
 var uploadedFilesCount = Number(localStorage.getItem("uploadedFilesCount") || "0");
 
