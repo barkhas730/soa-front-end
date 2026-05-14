@@ -1,5 +1,5 @@
 var runtimeConfig = (typeof window !== "undefined" && window.APP_CONFIG) ? window.APP_CONFIG : {};
-var GATEWAY_URL = runtimeConfig.GATEWAY_URL || "http://localhost:8080";
+var GATEWAY_URL = runtimeConfig.GATEWAY_URL || runtimeConfig.API_BASE_URL || "http://localhost:8080";
 var AUTH_URL = runtimeConfig.AUTH_URL || (GATEWAY_URL + "/api/auth");
 var JSON_URL = runtimeConfig.JSON_URL || (GATEWAY_URL + "/api/users");
 var FILE_URL = runtimeConfig.FILE_URL || (GATEWAY_URL + "/api/files");
