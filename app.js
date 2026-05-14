@@ -1,6 +1,7 @@
-var AUTH_URL = "https://lionfish-app-sptgr.ondigitalocean.app/auth";
-var JSON_URL = "https://lionfish-app-sptgr.ondigitalocean.app/users";
-var FILE_URL = "https://octopus-app-phhnx.ondigitalocean.app/files";
+var runtimeConfig = (typeof window !== "undefined" && window.APP_CONFIG) ? window.APP_CONFIG : {};
+var AUTH_URL = runtimeConfig.AUTH_URL || "https://lionfish-app-sptgr.ondigitalocean.app/auth";
+var JSON_URL = runtimeConfig.JSON_URL || "https://lionfish-app-sptgr.ondigitalocean.app/users";
+var FILE_URL = runtimeConfig.FILE_URL || "https://octopus-app-phhnx.ondigitalocean.app/files";
 var uploadedImageUrl = "";
 var uploadedFilesCount = Number(localStorage.getItem("uploadedFilesCount") || "0");
 
